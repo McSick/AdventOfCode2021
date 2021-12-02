@@ -11,7 +11,6 @@ fn main() {
         let navcommands: Vec<Nav> = lines.into_iter().map(|l| {
             l.ok().and_then(|s| { 
                 let chunks: Vec<_> = s.split_whitespace().collect();
-                
                 return Some(Nav{ command: chunks[0].parse().unwrap(), distance:chunks[1].parse().unwrap()})
             }
         ).unwrap()
