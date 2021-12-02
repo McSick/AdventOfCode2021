@@ -18,10 +18,7 @@ fn main() {
         }).collect();
         dive1(&navcommands);
         dive2(&navcommands);
-
     }
-
-    
 }
 
 fn dive1(navcommands: &Vec<Nav>) -> () {
