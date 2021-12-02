@@ -39,12 +39,8 @@ fn dive2(navcommands: &Vec<Nav>) -> () {
     let mut aim = 0;
     for i in 0..navcommands.len() {
         match navcommands[i].command {
-            _ if navcommands[i].command == "up" => { 
-                aim -= navcommands[i].distance;
-            },
-            _ if navcommands[i].command == "down" => { 
-                aim += navcommands[i].distance;
-            },
+            _ if navcommands[i].command == "up" => aim -= navcommands[i].distance,
+            _ if navcommands[i].command == "down" => aim += navcommands[i].distance,
             _ if navcommands[i].command == "forward" => {
                 horizontal += navcommands[i].distance;
                 depth += aim * navcommands[i].distance;
