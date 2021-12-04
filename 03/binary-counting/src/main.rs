@@ -4,7 +4,6 @@ use std::path::Path;
 
 fn main() {
     if let Ok(lines) = read_lines("./input.txt") {
-
         let all_numbers: Vec<String> = lines.into_iter().map(|l| l.ok().unwrap()).collect();
         let trackingarr = get_most_common_digits(all_numbers.clone());
         let mut gamma = 0;
@@ -68,11 +67,11 @@ fn oxygen_generator_rating(
     } else if (current_bit_index + 1) >= 12 {
         return -1;
     } else {
-        oxygen_generator_rating(
+        return oxygen_generator_rating(
             potential_numbers.clone(),
             get_most_common_digits(potential_numbers.clone()),
             current_bit_index + 1,
-        )
+        );
     }
 }
 
