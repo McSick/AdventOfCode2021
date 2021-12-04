@@ -7,8 +7,8 @@ use std::path::Path;
 struct BingoBoard {
     total: i32,
     numbers: HashMap<i32, (i32, i32)>,
-    rows: HashMap<i32, i32>,
-    cols: HashMap<i32, i32>,
+    rows: [i32;5],
+    cols: [i32;5],
     has_won: bool
 }
 impl BingoBoard {
@@ -16,8 +16,8 @@ impl BingoBoard {
         BingoBoard {
             total: 0,
             numbers: HashMap::new(),
-            rows: HashMap::new(),
-            cols: HashMap::new(),
+            rows: [0;5],
+            cols: [0;5],
             has_won: false
         }
     }
@@ -26,11 +26,9 @@ impl BingoBoard {
         self.total += num;
     }
     fn check_rows_and_cols(&mut self, row_num: (i32, i32)) -> bool {
-        let r = self.rows.entry(row_num.0).or_insert(0);
-        *r += 1;
-        let c = self.cols.entry(row_num.1).or_insert(0);
-        *c += 1;
-        if *r == 5 || *c == 5 {
+        self.rows[row_num.0 as usize] += 1;
+        self.cols[row_num.1 as usize] += 1;
+        if self.rows[row_num.0 as usize] == 5 || self.cols[row_num.1 as usize] == 5 {
             self.has_won = true;
             return true;
         } else {
