@@ -6,8 +6,8 @@ use std::io::{self, BufRead};
 use std::path::Path;
 const BOARDSIZE: usize = 1000;
 fn main() {
-    let mut vents: Vec<Vent> = get_input();
-    let mut board: Vec<Vec<u16>> = vec![vec![0; BOARDSIZE]; BOARDSIZE];
+    let vents: Vec<Vent> = get_input();
+    let board: Vec<Vec<u16>> = vec![vec![0; BOARDSIZE]; BOARDSIZE];
 
     count_vents(vents, board);
 }
@@ -27,9 +27,9 @@ fn count_vents(vents: Vec<Vent>, mut board: Vec<Vec<u16>>) {
             traverse_diag(vent, &mut board);
         }
     }
-    count_intersectiosn(board);
+    count_intersections(board);
 }
-fn count_intersectiosn(board: Vec<Vec<u16>>) {
+fn count_intersections(board: Vec<Vec<u16>>) {
     let mut count = 0;
     for i in 0..BOARDSIZE {
         for j in 0..BOARDSIZE {
