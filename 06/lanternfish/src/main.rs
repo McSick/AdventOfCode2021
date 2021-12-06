@@ -8,7 +8,6 @@ const FILENAME:&str = "./input.txt";
 const DAYS:i32 = 256;
 const CYCLE: usize = 9;
 fn main() {
-    println!("Hello, world!");
     let fish = get_input();
     let number_of_fish = simulate_fish(fish);
     println!("Fish Count: {:?}", number_of_fish);
