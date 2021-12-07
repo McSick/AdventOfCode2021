@@ -17,10 +17,7 @@ fn move_crabs(min_max: (i32, i32), crabs: HashMap<i32, i32>) -> i32 {
     for i in min_max.0..(min_max.1 + 1) {
         let mut total_fuel = 0;
         for (key, val) in crabs.iter() {
-            let mut dist = key - i;
-            if dist < 0 {
-                dist *= -1;
-            }
+            let dist = (key - i).abs();
             //Part 1
             //let fuelconsume = dist * val;
 
