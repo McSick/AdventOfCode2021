@@ -7,18 +7,18 @@ use std::path::Path;
 struct BingoBoard {
     total: i32,
     numbers: HashMap<i32, (i32, i32)>,
-    rows: [usize;5],
-    cols: [usize;5],
-    has_won: bool
+    rows: [usize; 5],
+    cols: [usize; 5],
+    has_won: bool,
 }
 impl BingoBoard {
     fn new() -> Self {
         BingoBoard {
             total: 0,
             numbers: HashMap::new(),
-            rows: [0;5],
-            cols: [0;5],
-            has_won: false
+            rows: [0; 5],
+            cols: [0; 5],
+            has_won: false,
         }
     }
     fn add_number(&mut self, num: i32, r: i32, c: i32) {
@@ -36,7 +36,7 @@ impl BingoBoard {
         }
     }
     fn match_number(&mut self, num: i32) -> bool {
-        let row_num = *(self.numbers.get(&num).unwrap_or(&(-1,-1)));
+        let row_num = *(self.numbers.get(&num).unwrap_or(&(-1, -1)));
         if row_num.0 != -1 && row_num.1 != -1 {
             self.total -= num;
             self.check_rows_and_cols((row_num.0 as usize, row_num.1 as usize))
@@ -64,7 +64,7 @@ fn simulate_bingo(nums: Vec<i32>, mut bingoboards: Vec<BingoBoard>) -> (i32, i32
             lastwin = bingoboards[0].total * num;
             break;
         }
-        bingoboards.retain(|board| !board.has_won );
+        bingoboards.retain(|board| !board.has_won);
     }
     (firstwin, lastwin)
 }
