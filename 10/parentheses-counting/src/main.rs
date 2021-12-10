@@ -14,10 +14,9 @@ fn count_paren(lines: io::Lines<io::BufReader<File>>) -> (i32, i64) {
     let mut scores = Vec::new();
     for someline in lines {
         if let Ok(line) = someline {
-            let (invalid_cost, validstack) = validate_line(line);
-            part1 += invalid_cost;
-            if let Some(stack) = validstack {
-                scores.push(complete_the_sequence(stack));
+            match validate_line(line) {
+                Err(invalid_cost) => part1 += invalid_cost,
+                Ok(stack) => scores.push(complete_the_sequence(stack))
             }
         }
     }
@@ -39,7 +38,7 @@ fn complete_the_sequence(mut stack: Vec<char>) -> i64 {
     }
     score
 }
-fn validate_line(line: String) -> (i32, Option<Vec<char>>) {
+fn validate_line(line: String) -> Result<Vec<char>, i32>{
     let mut stack = Vec::new();
     for character in line.chars() {
         let mut invalid_cost = 0;
@@ -55,10 +54,10 @@ fn validate_line(line: String) -> (i32, Option<Vec<char>>) {
             _ => panic!("Unexpected character: {}", character),
         }
         if invalid_cost > 0 {
-            return (invalid_cost, None);
+            return Err(invalid_cost);
         }
     }
-    (0, Some(stack))
+    Ok(stack)
 }
 
 fn get_points_if_invalid(stack: &mut Vec<char>, elem: char) -> i32 {
@@ -99,27 +98,19 @@ where
 
 #[test]
 fn test_complete_the_sequence() {
-    let (_, validstack) = validate_line("[({(<(())[]>[[{[]{<()<>>".to_string());
-    if let Some(stack) = validstack {
-        let part2 = complete_the_sequence(stack);
-        assert_eq!(part2, 288957);
+
+    match validate_line("[({(<(())[]>[[{[]{<()<>>".to_string()) {
+        Err(_) => (),
+        Ok(stack) => assert_eq!(complete_the_sequence(stack), 288957)
     }
 }
 
 #[test]
 fn test_validate_line() {
-    let (count, _) = validate_line("{([(<{}[<>[]}>{[]{[(<()>".to_string());
-    assert_eq!(count, 1197);
-    let (count, _) = validate_line("[[<[([]))<([[{}[[()]]]".to_string());
-    assert_eq!(count, 3);
-    let (count, _) = validate_line("[{[{({}]{}}([{[{{{}}([]".to_string());
-    assert_eq!(count, 57);
-    let (count, _) = validate_line("[<(<(<(<{}))><([]([]()".to_string());
-    assert_eq!(count, 3);
-    let (count, _) = validate_line("<{([([[(<>()){}]>(<<{{".to_string());
-    assert_eq!(count, 25137);
-    let (count, _) = validate_line("(({[<>]}))".to_string());
-    assert_eq!(count, 0);
+    match validate_line("{([(<{}[<>[]}>{[]{[(<()>".to_string()) {
+        Err(count) => assert_eq!(count, 1197),
+        Ok(_) => ()
+    }
 }
 #[test]
 fn test_count_paren() {
