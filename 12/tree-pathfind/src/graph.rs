@@ -83,7 +83,7 @@ pub mod graph {
     fn part2() {
         let mut graph = get_input("input.txt");
         let result = graph.traverse(graph.get_vertex("start"), HashSet::new(), false);
-        println!("Part 1: {:?}", result);
+        println!("Part 2: {:?}", result);
         assert_eq!(result, 144603);
     }
     #[test]
