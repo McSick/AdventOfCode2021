@@ -3,15 +3,16 @@ use std::io::{self, BufRead};
 use std::path::Path;
 use std::collections::HashSet;
 use std::collections::HashMap;
-use std::hash::Hasher;
-use std::hash::Hash;
 use std::env;
+
+mod graph;
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     let filename = &args[1];
-    let mut edges = get_input(filename.as_str());
+    let edges = get_input(filename.as_str());
 
-    let mut visted: HashSet<String> = HashSet::new();
+    let visted: HashSet<String> = HashSet::new();
     let result = traverse("start".to_string(), edges.clone(), visted.clone(), true);
     println!("{:?}", result);
     let result = traverse("start".to_string(), edges, visted, false);
