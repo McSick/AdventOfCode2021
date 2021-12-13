@@ -48,14 +48,16 @@ pub mod graph {
                 self.adj_matrix[to_index][from_index] = from_larger;
                 self.adj_matrix[from_index][to_index] = to_larger;
             }
-            
+        }
+        fn get_edge(&self, from: usize, to: usize) -> i32{
+            return self.adj_matrix[from][to];
         }
         fn traverse(&mut self, from: usize, mut visted: HashSet<usize>, hit_twice: bool) -> i32 {
             visted.insert(from);
             let paths = self.adj_matrix[from];
             let mut count = 0;
             for to in 0..paths.len() {
-                let is_valid_edge = self.adj_matrix[from][to];
+                let is_valid_edge = self.get_edge(from,to);
 
                 if is_valid_edge == 1 || is_valid_edge == -1 {
                     if self.get_vertex("start") == to {
