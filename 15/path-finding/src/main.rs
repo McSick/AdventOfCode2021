@@ -67,7 +67,6 @@ fn dijkstra(graph: Vec<Vec<u32>>, start: (usize, usize) ) -> Vec<Vec<u32>> {
         if let Some((current, _dist)) = pq.pop() {
             visted.insert(current);
             let mut neighbors = get_neighors(current, graphsize);
-            neighbors.sort_unstable_by(|a,b| graph[a.0][a.1].partial_cmp(&graph[b.0][b.1]).unwrap());
             for neighbor in neighbors {
                 let distance = graph[neighbor.0][neighbor.1];
                 if !visted.contains(&neighbor) {
