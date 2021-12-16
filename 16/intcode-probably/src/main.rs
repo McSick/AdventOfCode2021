@@ -1,26 +1,39 @@
+use std::cmp;
 fn main() {
-    let mut binstring = convert_2_bin("A20D790042F1274011955491808B802F1C60B20030327AF2CC248AA800E7CDD726F3D78F4966F571A300BA54D668E2519249265160803EA9DE562A1801204ACE53C954ACE53C94C659BDF318FD1366EF44D96EB11005FB39154E0068A7C3A6B379646C80348A0055E6642B332109B8D6F0F12980452C9D322B28012EC72D51B300426CF70017996DE6C2B2C70C01A04B67B9F9EC8DAFE679D0992A80380104065FA8012805BD380120051E380146006380142004A00E920034C0801CA007B0099420053007144016E28018800CCC8CBB5FE79A3D91E1DC9FB151A1006CC0188970D6109803B1D61344320042615C198C2A014C589D00943096B3CCC081009173D015B004C401C8E10421E8002110BA18C193004A52257E0094BCE1ABB94C2C9005112DFAA5E80292B405927020106BC01494DFA6E329BF4DD273B69E233DB04C435BEF7A0CC00CFCDF31DC6AD20A3002A498CC01D00042229479890200E4438A91700010F88F0EA251802D33FE976802538EF38E2401B84CA05004833529CD2A5BD9DDAC566009CC33E8024200CC528E71F40010A8DF0C61D8002B5076719A5D418034891895CFD320730F739A119CB2EA0072D25E870EA465E189FDC1126AF4B91100A03600A0803713E2FC7D00043A25C3B8A12F89D2E6440242489A7802400086C788FB09C0010C8BB132309005A1400D2CBE7E7F2F9F9F4BB83803B25286DFE628E129EBCB7483C8802F3D0A2542E3004AC0169BD944AFF263361F1B48010496089807100BA54A66675769B1787D230C621EF8B9007893F058A009AE4ED7A5BBDBE05262CEC0002FC7C20082622E0020D0D66A2D04021D5003ED3D396E19A1149054FCA3586BD00020129B0037300042E0CC1184C000874368F70A251D840239798AC8DC9A56F7C6C0E0728015294D9290030B226938A928D0");
-    if let Some((packet, _binstring)) = find_next_packet(binstring) {
+    let binstring = convert_2_bin("A20D790042F1274011955491808B802F1C60B20030327AF2CC248AA800E7CDD726F3D78F4966F571A300BA54D668E2519249265160803EA9DE562A1801204ACE53C954ACE53C94C659BDF318FD1366EF44D96EB11005FB39154E0068A7C3A6B379646C80348A0055E6642B332109B8D6F0F12980452C9D322B28012EC72D51B300426CF70017996DE6C2B2C70C01A04B67B9F9EC8DAFE679D0992A80380104065FA8012805BD380120051E380146006380142004A00E920034C0801CA007B0099420053007144016E28018800CCC8CBB5FE79A3D91E1DC9FB151A1006CC0188970D6109803B1D61344320042615C198C2A014C589D00943096B3CCC081009173D015B004C401C8E10421E8002110BA18C193004A52257E0094BCE1ABB94C2C9005112DFAA5E80292B405927020106BC01494DFA6E329BF4DD273B69E233DB04C435BEF7A0CC00CFCDF31DC6AD20A3002A498CC01D00042229479890200E4438A91700010F88F0EA251802D33FE976802538EF38E2401B84CA05004833529CD2A5BD9DDAC566009CC33E8024200CC528E71F40010A8DF0C61D8002B5076719A5D418034891895CFD320730F739A119CB2EA0072D25E870EA465E189FDC1126AF4B91100A03600A0803713E2FC7D00043A25C3B8A12F89D2E6440242489A7802400086C788FB09C0010C8BB132309005A1400D2CBE7E7F2F9F9F4BB83803B25286DFE628E129EBCB7483C8802F3D0A2542E3004AC0169BD944AFF263361F1B48010496089807100BA54A66675769B1787D230C621EF8B9007893F058A009AE4ED7A5BBDBE05262CEC0002FC7C20082622E0020D0D66A2D04021D5003ED3D396E19A1149054FCA3586BD00020129B0037300042E0CC1184C000874368F70A251D840239798AC8DC9A56F7C6C0E0728015294D9290030B226938A928D0");
+    if let Some((packet, _binstring)) = find_next_packet(binstring.clone()) {
         let sum = add_all_versions(packet);
-        println!("Part 1: {}", sum); 
+        println!("Part 1: {}", sum);
+    }
+    if let Some((packet, _binstring)) = find_next_packet(binstring) {
+        println!("Part 2: {}", packet.val());
     }
 }
 #[derive(Debug, PartialEq)]
 enum Packet {
     Literal(Literal),
-    Operator(Operator)
+    Operator(Operator),
+}
+impl Packet {
+    fn val(&self) -> &u64 {
+        match &self {
+            Packet::Literal(lit) => &lit.value,
+            Packet::Operator(op) => &op.value
+        }
+    }
 }
 #[derive(Debug, PartialEq)]
 struct Literal {
     version: u8,
     value: u64,
-    id: u8
+    id: u8,
 }
 #[derive(Debug, PartialEq)]
 struct Operator {
-    version: u8, 
+    version: u8,
     id: u8,
-    packets: Vec<Packet>
+    value: u64,
+    packets: Vec<Packet>,
 }
 fn add_all_versions(packet: Packet) -> u64 {
     match packet {
@@ -31,49 +44,96 @@ fn add_all_versions(packet: Packet) -> u64 {
             }
             return sum;
         }
-        Packet::Literal(lit)=> lit.version as u64
-   }
+        Packet::Literal(lit) => lit.version as u64,
+    }
 }
-fn find_next_packet(mut binstring:String) -> Option<(Packet, String)> {
+fn find_next_packet(mut binstring: String) -> Option<(Packet, String)> {
     let version = u8::from_str_radix(binstring.drain(..3).collect::<String>().as_str(), 2).unwrap();
-    let packet_id = u8::from_str_radix(binstring.drain(..3).collect::<String>().as_str(), 2).unwrap();
+    let packet_id =
+        u8::from_str_radix(binstring.drain(..3).collect::<String>().as_str(), 2).unwrap();
     match packet_id {
-        4 =>  {
+        4 => {
             let (value, binstring) = parse_literal_packet(binstring);
-            let packet = Packet::Literal(Literal {version: version, value: value, id: packet_id});
+            let packet = Packet::Literal(Literal {
+                version: version,
+                value: value,
+                id: packet_id,
+            });
             return Some((packet, binstring));
-        } ,        
+        }
         _ => {
             let (packets, binstring) = parse_operator_packet(binstring);
-            let packet = Packet::Operator(Operator { version: version, id: packet_id, packets:packets});
+            let value;
+            match packet_id {
+                //SUM
+                0 => {
+                    value = packets.iter().fold(0, |acc, packet|  { return acc + packet.val();});
+                },
+                // //Product
+                1 => {
+                    value = packets.iter().fold(1, |acc, packet|  { return acc * packet.val();});
+                },
+                // //Min
+                2 => {
+                    value = packets.iter().fold(u64::MAX, |acc, packet|  { return cmp::min(acc,*packet.val()); });
+                },
+                // //Max
+                3 => {
+                    value = packets.iter().fold(0, |acc, packet|  { return cmp::max(acc,*packet.val()); });
+                },
+                // //Greater
+                5 => {
+                    value = if packets[0].val() > packets[1].val() { 1 } else { 0 };
+                },
+                // //Less
+                6 => {
+                    value = if packets[0].val() < packets[1].val() { 1 } else { 0 };
+                },
+                // //Equal
+                7 => {
+                    value = if packets[0].val() == packets[1].val() { 1 } else { 0 };
+                },
+                _ => { value = 0;}
+            };
+        
+            let packet = Packet::Operator(Operator {
+                version: version,
+                id: packet_id,
+                packets: packets,
+                value: value
+            });
             return Some((packet, binstring));
         }
     };
 }
 fn parse_literal_packet(mut binstring: String) -> (u64, String) {
-    let mut value_str:String = "".to_string();
+    let mut value_str: String = "".to_string();
     let mut should_read = true;
     while should_read {
         should_read = binstring.remove(0) == '1';
         let next_digits = binstring.drain(..4).collect::<String>();
         value_str += &next_digits;
     }
-    (u64::from_str_radix(value_str.as_str(), 2).unwrap(), binstring)
+    (
+        u64::from_str_radix(value_str.as_str(), 2).unwrap(),
+        binstring,
+    )
 }
-fn parse_operator_packet(mut binstring: String)  -> (Vec<Packet>, String)  {
+fn parse_operator_packet(mut binstring: String) -> (Vec<Packet>, String) {
     let length_type = binstring.remove(0);
     match length_type {
-        '0' =>  {
-            let n_bits = u64::from_str_radix(binstring.drain(..15).collect::<String>().as_str(), 2).unwrap();
+        '0' => {
+            let n_bits =
+                u64::from_str_radix(binstring.drain(..15).collect::<String>().as_str(), 2).unwrap();
             parse_n_bits(n_bits, binstring)
-        },
+        }
         '1' => {
-            let n_packets = u64::from_str_radix(binstring.drain(..11).collect::<String>().as_str(), 2).unwrap();
+            let n_packets =
+                u64::from_str_radix(binstring.drain(..11).collect::<String>().as_str(), 2).unwrap();
             parse_n_subpackets(n_packets, binstring)
-        },
-        _ => panic!("Invalid Character in string")
+        }
+        _ => panic!("Invalid Character in string"),
     }
-   
 }
 
 fn parse_n_bits(n_bits: u64, mut binstring: String) -> (Vec<Packet>, String) {
@@ -84,7 +144,7 @@ fn parse_n_bits(n_bits: u64, mut binstring: String) -> (Vec<Packet>, String) {
         if let Some((packet, newstring)) = find_next_packet(binstring.clone()) {
             binstring = newstring;
             consumed_bits = beginning_len - binstring.len() as u64;
-            packets.push(packet); 
+            packets.push(packet);
         }
     }
     (packets, binstring)
@@ -95,10 +155,47 @@ fn parse_n_subpackets(n_packets: u64, mut binstring: String) -> (Vec<Packet>, St
     for _ in 0..n_packets {
         if let Some((packet, newstring)) = find_next_packet(binstring.clone()) {
             binstring = newstring;
-            packets.push(packet); 
+            packets.push(packet);
         }
     }
     (packets, binstring)
+}
+#[test]
+fn test_values() {
+    let mut binstring = convert_2_bin("C200B40A82");
+    if let Some((packet, _binstring)) = find_next_packet(binstring) {
+        assert_eq!(*packet.val(), 3);
+    }
+    let mut binstring = convert_2_bin("04005AC33890");
+    if let Some((packet, _binstring)) = find_next_packet(binstring) {
+        assert_eq!(*packet.val(), 54);
+    }
+    let mut binstring = convert_2_bin("880086C3E88112");
+    if let Some((packet, _binstring)) = find_next_packet(binstring) {
+        println!("{:?}", packet);
+        assert_eq!(*packet.val(), 7);
+    }
+    let mut binstring = convert_2_bin("CE00C43D881120");
+    if let Some((packet, _binstring)) = find_next_packet(binstring) {
+        assert_eq!(*packet.val(), 9);
+    }
+    let mut binstring = convert_2_bin("D8005AC2A8F0");
+    if let Some((packet, _binstring)) = find_next_packet(binstring) {
+        assert_eq!(*packet.val(), 1);
+    }
+    let mut binstring = convert_2_bin("F600BC2D8F");
+    if let Some((packet, _binstring)) = find_next_packet(binstring) {
+        assert_eq!(*packet.val(), 0);
+    }
+    let mut binstring = convert_2_bin("9C005AC2F8F0");
+    if let Some((packet, _binstring)) = find_next_packet(binstring) {
+        assert_eq!(*packet.val(), 0);
+    }
+    let mut binstring = convert_2_bin("9C0141080250320F1802104A08");
+    if let Some((packet, _binstring)) = find_next_packet(binstring) {
+        assert_eq!(*packet.val(), 1);
+    }
+
 }
 #[test]
 fn test_sums() {
@@ -128,13 +225,13 @@ fn find_operator_packet_sub() {
     let mut binstring = convert_2_bin("EE00D40C823060");
     if let Some((packet, _binstring)) = find_next_packet(binstring) {
         match packet {
-             Packet::Operator(op) => {
-                 println!("{:?}", op);
+            Packet::Operator(op) => {
+                println!("{:?}", op);
                 assert_eq!(op.version, 7);
                 assert_eq!(op.id, 3);
                 assert_eq!(op.packets.len(), 3);
-             }
-             _ => ()
+            }
+            _ => (),
         }
     }
 }
@@ -143,17 +240,15 @@ fn find_operator_packet_bits() {
     let mut binstring = convert_2_bin("38006F45291200");
     if let Some((packet, _binstring)) = find_next_packet(binstring) {
         match packet {
-             Packet::Operator(op) => {
-                 println!("{:?}", op);
+            Packet::Operator(op) => {
+                println!("{:?}", op);
                 assert_eq!(op.version, 1);
                 assert_eq!(op.id, 6);
                 assert_eq!(op.packets.len(), 2);
-             }
-             _ => ()
+            }
+            _ => (),
         }
-       
     }
-
 }
 
 #[test]
@@ -164,22 +259,20 @@ fn find_first_packet() {
             Packet::Literal(lit) => {
                 assert_eq!(lit.version, 6);
                 assert_eq!(lit.value, 2021);
-             },
-             _ => ()
+            }
+            _ => (),
         }
-       
     }
-
 }
 
-fn convert_2_bin(hex:&str) -> String {
+fn convert_2_bin(hex: &str) -> String {
     let mut result = "".to_string();
     for digit in hex.chars() {
         result.push_str(char_to_bin(digit));
     }
     result
-}   
-fn char_to_bin(character: char) -> &'static str { 
+}
+fn char_to_bin(character: char) -> &'static str {
     match character {
         '0' => "0000",
         '1' => "0001",
@@ -197,6 +290,6 @@ fn char_to_bin(character: char) -> &'static str {
         'D' => "1101",
         'E' => "1110",
         'F' => "1111",
-        _ => ""
+        _ => "",
     }
 }
