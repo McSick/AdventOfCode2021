@@ -1,39 +1,31 @@
 fn main() {
     println!("Hello World!");
 }
-struct Packet {
+enum Packet {
+    Literal(Literal),
+    Operator(Operator)
+}
+struct Literal {
     version: u8,
     value: u32,
-    packet_type: PacketType
-
+    id: u8
 }
-impl Packet {
-    fn new(version: u8, p_type: PacketType, value: u32) -> Packet {
-        return Packet {
-            version: version,
-            packet_type: p_type,
-            value: value
-        }
-    }
-    
-}
-enum PacketType {
-    LITERAL,
-    OPERATOR
+struct Operator {
+    version: u8, 
+    id: u8,
+    packets: Vec<Packet>
 }
 fn find_next_packet(mut binstring:String) -> Option<(Packet, String)> {
     let version = u8::from_str_radix(binstring.drain(..3).collect::<String>().as_str(), 2).unwrap();
-    let p_type =  get_packet_type(u8::from_str_radix(binstring.drain(..3).collect::<String>().as_str(), 2).unwrap());
-    match p_type {
-        PacketType::LITERAL =>  {
+    let packet_id = u8::from_str_radix(binstring.drain(..3).collect::<String>().as_str(), 2).unwrap();
+    match packet_id {
+        4 =>  {
             let (value, binstring) = parse_literal_packet(binstring);
-            let packet = Packet::new(version, p_type, value);
+            let packet = Packet::Literal(Literal {version: version, value: value, id: packet_id});
             return Some((packet, binstring));
         } ,        
         _ => { return None; }
     };
-    None
-
 }
 fn parse_literal_packet(mut binstring: String) -> (u32, String) {
     let mut value_str:String = "".to_string();
@@ -45,22 +37,23 @@ fn parse_literal_packet(mut binstring: String) -> (u32, String) {
     }
     (u32::from_str_radix(value_str.as_str(), 2).unwrap(), binstring)
 }
-fn parse_operator_packet() {
+// fn parse_operator_packet(mut binstring: String) -> (Packet, String) {
+//     let length_type = binbinstring.remove(0);
 
-}
-fn get_packet_type(operator:u8) -> PacketType {
-    match operator {
-        4 => PacketType::LITERAL,
-        _ => PacketType::OPERATOR
-    }
-}
+// }
 
 #[test]
 fn find_first_packet() {
     let mut binstring = convert_2_bin("D2FE28");
     if let Some((packet, binstring)) = find_next_packet(binstring) {
-        assert_eq!(packet.version, 6);
-        assert_eq!(packet.value, 2021);
+        match packet {
+            Packet::Literal(lit) => {
+                assert_eq!(lit.version, 6);
+                assert_eq!(lit.value, 2021);
+             },
+             _ => ()
+        }
+       
     }
 
 }
