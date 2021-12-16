@@ -13,7 +13,7 @@ enum Packet {
 #[derive(Debug, PartialEq)]
 struct Literal {
     version: u8,
-    value: u32,
+    value: u64,
     id: u8
 }
 #[derive(Debug, PartialEq)]
@@ -22,16 +22,16 @@ struct Operator {
     id: u8,
     packets: Vec<Packet>
 }
-fn add_all_versions(packet: Packet) -> u32 {
+fn add_all_versions(packet: Packet) -> u64 {
     match packet {
         Packet::Operator(op) => {
-            let mut sum = op.version as u32;
+            let mut sum = op.version as u64;
             for sub_packet in op.packets {
                 sum += add_all_versions(sub_packet);
             }
             return sum;
         }
-        Packet::Literal(lit)=> lit.version as u32
+        Packet::Literal(lit)=> lit.version as u64
    }
 }
 fn find_next_packet(mut binstring:String) -> Option<(Packet, String)> {
@@ -50,7 +50,7 @@ fn find_next_packet(mut binstring:String) -> Option<(Packet, String)> {
         }
     };
 }
-fn parse_literal_packet(mut binstring: String) -> (u32, String) {
+fn parse_literal_packet(mut binstring: String) -> (u64, String) {
     let mut value_str:String = "".to_string();
     let mut should_read = true;
     while should_read {
@@ -58,17 +58,17 @@ fn parse_literal_packet(mut binstring: String) -> (u32, String) {
         let next_digits = binstring.drain(..4).collect::<String>();
         value_str += &next_digits;
     }
-    (u32::from_str_radix(value_str.as_str(), 2).unwrap(), binstring)
+    (u64::from_str_radix(value_str.as_str(), 2).unwrap(), binstring)
 }
 fn parse_operator_packet(mut binstring: String)  -> (Vec<Packet>, String)  {
     let length_type = binstring.remove(0);
     match length_type {
         '0' =>  {
-            let n_bits = u32::from_str_radix(binstring.drain(..15).collect::<String>().as_str(), 2).unwrap();
+            let n_bits = u64::from_str_radix(binstring.drain(..15).collect::<String>().as_str(), 2).unwrap();
             parse_n_bits(n_bits, binstring)
         },
         '1' => {
-            let n_packets = u32::from_str_radix(binstring.drain(..11).collect::<String>().as_str(), 2).unwrap();
+            let n_packets = u64::from_str_radix(binstring.drain(..11).collect::<String>().as_str(), 2).unwrap();
             parse_n_subpackets(n_packets, binstring)
         },
         _ => panic!("Invalid Character in string")
@@ -76,21 +76,21 @@ fn parse_operator_packet(mut binstring: String)  -> (Vec<Packet>, String)  {
    
 }
 
-fn parse_n_bits(n_bits: u32, mut binstring: String) -> (Vec<Packet>, String) {
-    let beginning_len = binstring.len() as u32;
+fn parse_n_bits(n_bits: u64, mut binstring: String) -> (Vec<Packet>, String) {
+    let beginning_len = binstring.len() as u64;
     let mut consumed_bits = 0;
     let mut packets: Vec<Packet> = vec![];
     while consumed_bits < n_bits {
         if let Some((packet, newstring)) = find_next_packet(binstring.clone()) {
             binstring = newstring;
-            consumed_bits = beginning_len - binstring.len() as u32;
+            consumed_bits = beginning_len - binstring.len() as u64;
             packets.push(packet); 
         }
     }
     (packets, binstring)
 }
 
-fn parse_n_subpackets(n_packets: u32, mut binstring: String) -> (Vec<Packet>, String) {
+fn parse_n_subpackets(n_packets: u64, mut binstring: String) -> (Vec<Packet>, String) {
     let mut packets: Vec<Packet> = vec![];
     for _ in 0..n_packets {
         if let Some((packet, newstring)) = find_next_packet(binstring.clone()) {
